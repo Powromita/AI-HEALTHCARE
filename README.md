@@ -1,6 +1,6 @@
 # AI Healthcare Management System
 
-A comprehensive MERN stack healthcare management system with role-based access control for administrators, doctors, and patients.
+A comprehensive MERN stack healthcare management system with role-based access control for administrators, doctors, and patients. Includes an advanced **emotion assessment system** with recommendation-based ML.
 
 ## 🎨 Design System
 
@@ -37,11 +37,20 @@ This project uses the **Blue Jungle** color palette:
 
 ### 🏥 Patient Dashboard
 - **Health Overview**: Personal health statistics and recent activity
+- **Emotion Assessment**: Video/audio-based emotion assessment with ML recommendations
 - **Appointments**: Book, view, and manage medical appointments
 - **Medications**: Track current medications and adherence
 - **Health Records**: View lab results, vital signs, and medical history
 - **Health Tracking**: Record and monitor personal health metrics
 - **Settings**: Manage personal information and preferences
+
+### 🧠 Emotion Assessment System (NEW)
+- **Video/Audio Based**: Uses media consumption to understand emotional state
+- **ML-Powered Recommendations**: Recommendation-based system using CSV emotion data
+- **Question-Based Assessment**: Pre and post-assessment questions
+- **Therapeutic Media**: Shows opposite emotion content based on diagnosis
+- **Genuineness Detection**: ML-based authenticity assessment
+- **No External APIs**: All processing done locally using MongoDB and CSV data
 
 ## 🛠️ Technology Stack
 
@@ -56,9 +65,14 @@ This project uses the **Blue Jungle** color palette:
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
 - **MongoDB** - Database
-- **Mongoose** - ODM
+- **Mongoose** - ODM for MongoDB
 - **JWT** - Authentication
 - **bcryptjs** - Password hashing
+
+### ML System
+- **Recommendation Engine** - Content-based filtering for media recommendations
+- **CSV Data Integration** - Emotion data from CSV file
+- **Python ML Models** - Emotion detection and genuineness assessment (optional)
 
 ## 📁 Project Structure
 
@@ -71,6 +85,7 @@ AI-HEALTHCARE/
 │   │   │   ├── admin/      # Admin-specific components
 │   │   │   ├── doctor/     # Doctor-specific components
 │   │   │   ├── patient/    # Patient-specific components
+│   │   │   │   └── EmotionAssessment.js  # Emotion assessment UI
 │   │   │   └── ...
 │   │   ├── contexts/       # React contexts
 │   │   └── utils/          # Utility functions
@@ -80,15 +95,32 @@ AI-HEALTHCARE/
 │   ├── Appointment.js
 │   ├── Medication.js
 │   ├── HealthRecord.js
-│   └── HealthTracking.js
+│   ├── HealthTracking.js
+│   ├── MediaContent.js    # Video/audio content
+│   ├── EmotionQuestion.js  # Assessment questions
+│   └── EmotionSession.js   # Assessment sessions
+├── controllers/            # Business logic
+│   └── emotionController.js  # Emotion assessment logic
 ├── routes/                 # API routes
 │   ├── auth.js
 │   ├── admin.js
 │   ├── doctor.js
-│   └── patient.js
+│   ├── patient.js
+│   └── emotion.js         # Emotion assessment API
+├── utils/                  # Utility functions
+│   ├── csvParser.js       # CSV data parser
+│   └── recommendationEngine.js  # ML recommendation engine
+├── ml-model/              # ML model structure
+│   ├── emotion_detection_model.py
+│   ├── ML_TRAINING_GUIDE.md
+│   └── requirements.txt
+├── data/                   # Emotion data
+│   ├── emotions.csv       # CSV file (add your data here)
+│   └── README.md
+├── scripts/               # Utility scripts
+│   └── seedEmotionData.js  # Seed initial data
 ├── middleware/             # Custom middleware
 │   └── auth.js
-├── controllers/            # Business logic
 ├── server.js              # Main server file
 ├── package.json
 └── README.md
@@ -105,7 +137,7 @@ AI-HEALTHCARE/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Powromita/AI-HEALTHCARE.git
    cd AI-HEALTHCARE
    ```
 
@@ -127,13 +159,24 @@ AI-HEALTHCARE/
    # Edit .env with your configuration
    ```
 
-5. **Start MongoDB**
+5. **Add emotion CSV data** (Optional)
+   ```bash
+   # Place your emotions.csv file in the data/ directory
+   # See data/README.md for format
+   ```
+
+6. **Seed initial data** (Optional)
+   ```bash
+   node scripts/seedEmotionData.js
+   ```
+
+7. **Start MongoDB**
    ```bash
    # If using local MongoDB
    mongod
    ```
 
-6. **Run the application**
+8. **Run the application**
    ```bash
    # Development mode (runs both server and client)
    npm run dev
@@ -162,29 +205,53 @@ For testing purposes, you can use these mock credentials:
 - Medical information (blood type, allergies, emergency contact)
 - Authentication fields (password, last login)
 
-### Appointment Model
-- Patient and doctor references
-- Scheduling information (date, time, duration)
-- Appointment details (type, status, notes)
-- Room assignment and follow-up tracking
+### Emotion Assessment Models (NEW)
 
-### Medication Model
-- Prescription details (name, dosage, frequency)
-- Patient and doctor references
-- Adherence tracking
-- Reminder settings
+#### MediaContent
+- Stores videos and audios with emotion tags
+- Content types: initial (shown first) or therapeutic (recommended)
+- Emotion categories: positive, negative, neutral
+- Effectiveness tracking
 
-### HealthRecord Model
-- Various record types (lab results, vital signs, medical history)
-- File attachments support
-- Privacy settings
-- Doctor and patient references
+#### EmotionQuestion
+- Pre and post-assessment questions
+- Question types: mental, physical, combined
+- Emotion mapping for response options
+- Weighted scoring for ML
 
-### HealthTracking Model
-- Personal health metrics tracking
-- Multiple tracking types (blood pressure, weight, etc.)
-- Historical data with timestamps
-- Status and notes
+#### EmotionSession
+- Complete assessment session tracking
+- Pre and post-assessment responses
+- ML-based emotion diagnosis
+- Genuineness assessment
+- Improvement tracking
+
+### Other Models
+- **Appointment**: Patient and doctor references, scheduling
+- **Medication**: Prescription details, adherence tracking
+- **HealthRecord**: Lab results, vital signs, medical history
+- **HealthTracking**: Personal health metrics tracking
+
+## 🧠 Emotion Assessment System
+
+### How It Works
+
+1. **Initial Media**: User watches recommended videos/audios
+2. **Pre-Assessment**: Answers questions about current emotional/physical state
+3. **ML Diagnosis**: System diagnoses emotion using:
+   - Question responses
+   - Media watch behavior
+   - CSV emotion data
+4. **Therapeutic Media**: System recommends opposite emotion content
+5. **Post-Assessment**: User answers questions again
+6. **Genuineness Assessment**: ML evaluates response authenticity
+
+### CSV Data Format
+
+Place your `emotions.csv` file in the `data/` directory. See `data/README.md` for complete format.
+
+Required: `emotion`  
+Optional: `intensity`, `symptoms`, `oppositeEmotion`, `recommendedContent`, `category`
 
 ## 🔒 Security Features
 
@@ -202,49 +269,29 @@ For testing purposes, you can use these mock credentials:
 - `POST /api/auth/login` - User login
 - `GET /api/auth/me` - Get current user
 - `PUT /api/auth/profile` - Update profile
-- `PUT /api/auth/change-password` - Change password
 
-### Admin Routes
-- `GET /api/admin/dashboard` - Dashboard statistics
-- `GET /api/admin/patients` - Get all patients
-- `POST /api/admin/patients` - Create patient
-- `PUT /api/admin/patients/:id` - Update patient
-- `DELETE /api/admin/patients/:id` - Delete patient
-- Similar endpoints for doctors, treatments, and medicines
+### Emotion Assessment (NEW)
+- `POST /api/emotion/session/start` - Start new assessment session
+- `GET /api/emotion/media/initial` - Get initial media recommendations
+- `POST /api/emotion/session/record-initial-media` - Record media watch
+- `GET /api/emotion/questions/pre` - Get pre-assessment questions
+- `POST /api/emotion/assessment/pre` - Submit pre-assessment & get therapeutic media
+- `POST /api/emotion/session/record-therapeutic-media` - Record therapeutic media
+- `GET /api/emotion/questions/post` - Get post-assessment questions
+- `POST /api/emotion/assessment/post` - Submit post-assessment & get results
+- `GET /api/emotion/sessions/history` - Get session history
 
-### Doctor Routes
-- `GET /api/doctor/dashboard` - Doctor dashboard
-- `GET /api/doctor/patients` - Get assigned patients
-- `GET /api/doctor/patients/:id` - Get patient details
-- `POST /api/doctor/schedule` - Schedule appointment
-- `POST /api/doctor/prescriptions` - Prescribe medication
+### Other Endpoints
+- Admin, Doctor, and Patient routes (see full documentation)
 
-### Patient Routes
-- `GET /api/patient/dashboard` - Patient dashboard
-- `GET /api/patient/appointments` - Get appointments
-- `POST /api/patient/appointments` - Book appointment
-- `GET /api/patient/medications` - Get medications
-- `POST /api/patient/health-tracking` - Record health data
+## 📚 Documentation
 
-## 🎨 UI/UX Features
-
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Material Design**: Clean and modern interface
-- **Color-coded Status**: Visual indicators for different states
-- **Interactive Components**: Modals, forms, and data tables
-- **Real-time Updates**: Live data refresh capabilities
-- **Accessibility**: ARIA labels and keyboard navigation
-
-## 🔮 Future Enhancements
-
-- **Real-time Notifications**: WebSocket integration
-- **File Upload**: Document and image management
-- **Email Integration**: Automated notifications
-- **AI Features**: Health predictions and recommendations
-- **Mobile App**: React Native version
-- **Analytics Dashboard**: Advanced reporting
-- **Telemedicine**: Video consultation features
-- **Integration**: Third-party health devices
+- **SETUP_INSTRUCTIONS.md** - Complete setup guide
+- **CSV_INTEGRATION_GUIDE.md** - CSV integration and ML system guide
+- **RECOMMENDATION_SYSTEM_SUMMARY.md** - Recommendation engine documentation
+- **EMOTION_ASSESSMENT_SUMMARY.md** - Emotion assessment system overview
+- **ml-model/ML_TRAINING_GUIDE.md** - ML model training guide
+- **data/README.md** - CSV file format guide
 
 ## 🤝 Contributing
 
